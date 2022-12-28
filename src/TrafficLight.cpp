@@ -71,26 +71,18 @@ void TrafficLight::cycleThroughPhases()
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds.
     // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles.
     int cycleDurationMs = 4000 + (rand() % 2000);
-    auto lastCycleAt = std::chrono::system_clock::now();
+    auto lastCycledAt = std::chrono::system_clock::now();
 
     while (true)
     {
-        int timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastCycleAt).count();
+        int timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastCycledAt).count();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         if (timeElapsed >= cycleDurationMs)
         {
-            if (_currentPhase == TrafficLightPhase::red)
-            {
-                _currentPhase = TrafficLightPhase::green;
-            }
-            else
-            {
-                _currentPhase = TrafficLightPhase::red;
-            }
-
+            _currentPhase = (_currentPhase == TrafficLightPhase::green) ? red : green;
             _messageQueue.send(std::move(_currentPhase));
-            lastCycleAt = std::chrono::system_clock::now();
+            lastCycledAt = std::chrono::system_clock::now();
         }
     }
 }
